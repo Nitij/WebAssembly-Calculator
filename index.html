@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        #spanOutput{
+            display:block;
+            width:100%;
+            height:20px;
+            text-align:center;
+        }
+    </style>
+    <script src="script.js"></script>
+</head>
+<body>
+    
+    <table>
+        <tr>
+            <td colspan="4"><input id="txtInput" style="text-align: right;" type="text"/></td>
+        </tr>
+        <tr>
+            <td colspan="4"><span id="spanOutput" id="output"></span></td>
+        </tr>
+        <tr>
+            <td colspan="4"><input type="button" value="Clear" onclick="javascript:clearAll()"/></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="+" onclick="javascript:setOperation(this)"/></td>
+            <td><input type="button" value="-" onclick="javascript:setOperation(this)"/></td>
+            <td><input type="button" value="*" onclick="javascript:setOperation(this)"/></td>
+            <td><input type="button" value="/" onclick="javascript:setOperation(this)"/></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="1" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="2" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="3" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="4" onclick="javascript:setArgument(this)"/></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="5" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="6" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="7" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="8" onclick="javascript:setArgument(this)"/></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="9" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="0" onclick="javascript:setArgument(this)"/></td>
+            <td><input type="button" value="=" onclick="javascript:getResult()"/></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <script>
+        txtInput = document.querySelector('#txtInput');
+        spanOutput = document.querySelector('#spanOutput');
+        let arg1 = 0;
+        let arg2 = 0;
+        let hasArg2 = false;
+        let operation = '';
+
+        function setArgument(target){
+            let value = parseFloat(target.value);
+
+            //update the number in input
+            txtInput.value = txtInput.value.toString() + value.toString();
+
+            if(!hasArg2){ //Set 1st argument
+                arg1 = parseFloat(txtInput.value);
+                spanOutput.innerHTML = arg1;
+            }
+            else{ //Set 2nd argument
+                arg2 = parseFloat(txtInput.value);
+                spanOutput.innerHTML = `${arg1} ${operation} ${arg2}`;   
+            }
+        }
+
+        function setOperation(target){
+            operation = target.value;             
+            spanOutput.innerHTML = (hasArg2) ? `${arg1} ${operation} ${arg2}` : `${arg1} ${operation}`;    
+            hasArg2 = true;       
+            txtInput.value = '';
+            updateOutput();
+        }
+
+        function getResult(){
+            let result = 0;
+            switch(operation){
+                case '+':
+                    result = wasmExports.add(arg1, arg2);
+                    break;
+                case '-':
+                    result = wasmExports.subtract(arg1, arg2);
+                    break;
+                case '*':
+                    result = wasmExports.multiply(arg1, arg2);
+                    break;
+                case '/':
+                    result = wasmExports.divide(arg1, arg2);
+                    break;
+            }
+            spanOutput.innerHTML = result;
+            txtInput.value = result;
+            arg1 = result;
+            hasArg2 = false;
+        }
+
+        function clearAll(){
+            arg1 = arg2 = 0;
+            operation = '';
+            hasArg2 = false;
+            txtInput.value = '';
+            spanOutput.innerHTML = '';
+        }
+
+    </script>
+</body>
+</html>
